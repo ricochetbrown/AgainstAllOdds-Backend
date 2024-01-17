@@ -1,4 +1,4 @@
-use lambda_web::actix_web::{App, HttpServer};
+use actix_web::{App, HttpServer};
 use lambda_web::{is_running_on_lambda, run_actix_on_lambda, LambdaError};
 
 use cats::{create_cat_data, create_cat_scope};
