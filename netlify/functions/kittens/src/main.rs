@@ -5,6 +5,7 @@ use lambda_runtime::{handler_fn, Context, Error};
 use log::LevelFilter;
 use simple_logger::SimpleLogger;
 use actix_web::{App, HttpServer};
+use std::any::Any;
 
 use cats::{create_cat_data, create_cat_scope};
 
@@ -17,11 +18,11 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
-pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> Result<(), Error> {
+pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> Result<Any, Error> {
     let path = event.path.unwrap();
     let cat_data = create_cat_data();
 
-    let resp = HttpServer::new(move || App::new().service(create_cat_scope(&cat_data))).bind(path);
+    let resp: Any = HttpServer::new(move || App::new().service(create_cat_scope(&cat_data))).bind(path);
 
     Ok(resp);
 }
