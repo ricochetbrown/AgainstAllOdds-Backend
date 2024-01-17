@@ -17,11 +17,11 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
-pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> Result<ApiGatewayProxyResponse, Error> {
+pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> Result<(), Error> {
     let path = event.path.unwrap();
     let cat_data = create_cat_data();
 
-    let resp = HttpServer::new(move || App::new().service(create_cat_scope(&cat_data))).bind(path)?.run().await?;
+    HttpServer::new(move || App::new().service(create_cat_scope(&cat_data))).bind(path)?.run().await?;
 
-    Ok(resp)
+    Ok(())
 }
