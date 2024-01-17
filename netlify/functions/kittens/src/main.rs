@@ -21,7 +21,7 @@ pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> 
     let path = event.path.unwrap();
     let cat_data = create_cat_data();
 
-    HttpServer::new(move || App::new().service(create_cat_scope(&cat_data))).bind(path)?.run().await?;
+    let resp = HttpServer::new(move || App::new().service(create_cat_scope(&cat_data))).bind(path);
 
-    Ok(())
+    Ok(resp);
 }
