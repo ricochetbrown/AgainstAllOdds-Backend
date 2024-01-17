@@ -3,7 +3,8 @@ resolver = '2'
 members = [
 	'apps/myapp',
 	'libs/cats',
-	'netlify/functions/hello'
+	'netlify/functions/hello',
+	'netlify/functions/kittens'
 ]
 
 [profile.release]
