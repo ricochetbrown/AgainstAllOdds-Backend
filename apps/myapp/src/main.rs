@@ -1,21 +1,35 @@
-use lambda_web::actix_web::{App, HttpServer};
-use lambda_web::{is_running_on_lambda, run_actix_on_lambda, LambdaError};
-
+use aws_lambda_events::event::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
+use aws_lambda_events::encodings::Body;
+use http::header::HeaderMap;
+use lambda_runtime::{handler_fn, Context, Error};
+use log::LevelFilter;
+use simple_logger::SimpleLogger;
+use actix_web::{App};
 use cats::{create_cat_data, create_cat_scope};
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    // HttpServer:new creates multiple threads to handle requests.
-    // We need to make sure that the shared cat data is created once before the HttpServer
-    // We can then pass this reference to the create_cat_scope so that all threads have access to the same data
+#[tokio::main]
+async fn main() -> Result<(), Error> {
+    SimpleLogger::new().with_level(LevelFilter::Info).init().unwrap();
+
+    let func = handler_fn(my_handler);
+    lambda_runtime::run(func).await?;
+    Ok(())
+}
+
+pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> Result<ApiGatewayProxyResponse, Error> {
+    let path = event.path.unwrap();
+
     let cat_data = create_cat_data();
 
-    if is_running_on_lambda() {
-        // Run on AWS Lambda
-        run_actix_on_lambda(move || App::new().service(create_cat_scope(&cat_data))).await?;
-    } else {
-        // Run local server
-        HttpServer::new(move || App::new().service(create_cat_scope(&cat_data))).bind("127.0.0.1:8080")?.run().await?;
-    }
-    Ok(())
+    let resp = ApiGatewayProxyResponse {
+        status_code: 200,
+        headers: HeaderMap::new(),
+        multi_value_headers: HeaderMap::new(),
+        body: Some(Body::Text(format!("Hello from '{}'", path))),
+        is_base64_encoded: Some(false),
+    };
+
+    //HttpServer::new(move || App::new().service(create_cat_scope(&cat_data))).bind("127.0.0.1:8080")?.run().await?;
+
+    Ok(resp)
 }
