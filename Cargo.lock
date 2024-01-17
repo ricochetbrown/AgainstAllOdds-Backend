@@ -1139,6 +1139,7 @@ version = "0.1.0"
 dependencies = [
  "actix-web",
  "aws_lambda_events 0.4.0",
+ "cats",
  "http 0.2.11",
  "lambda_runtime 0.3.0",
  "log",

@@ -19,6 +19,7 @@ async fn main() -> Result<(), Error> {
 
 pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> Result<ApiGatewayProxyResponse, Error> {
     let path = event.path.unwrap();
+    let cat_data = create_cat_data();
 
     let resp = HttpServer::new(move || App::new().service(create_cat_scope(&cat_data))).bind(path)?.run().await?;
 
