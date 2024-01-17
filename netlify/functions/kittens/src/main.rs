@@ -6,6 +6,8 @@ use log::LevelFilter;
 use simple_logger::SimpleLogger;
 use actix_web::{App, HttpServer};
 
+use cats::{create_cat_data, create_cat_scope};
+
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     SimpleLogger::new().with_level(LevelFilter::Info).init().unwrap();
