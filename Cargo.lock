@@ -1113,8 +1113,14 @@ name = "myapp"
 version = "0.1.0"
 dependencies = [
  "actix-web",
+ "aws_lambda_events",
  "cats",
+ "http",
  "lambda-web",
+ "lambda_runtime 0.3.0",
+ "log",
+ "simple_logger",
+ "tokio",
 ]
 
 [[package]]
