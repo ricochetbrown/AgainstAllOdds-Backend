@@ -1,28 +1,39 @@
-use aws_lambda_events::event::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
-use aws_lambda_events::encodings::Body;
-use http::header::HeaderMap;
-use lambda_runtime::{handler_fn, Context, Error};
-use log::LevelFilter;
-use simple_logger::SimpleLogger;
-use actix_web::{App, HttpServer};
-use std::any::Any;
+use http::header::CONTENT_TYPE;
+use lambda_http::{
+    run, service_fn, Body, Error, Request, RequestExt,
+    Response,
+};
+use serde::Serialize;
+use tracing::{debug, info, instrument};
 
-use cats::{create_cat_data, create_cat_scope};
+#[derive(Serialize)]
+struct ApiResponse {
+    data: String,
+}
+#[instrument]
+async fn function_handler(
+    event: Request,
+) -> Result<Response<Body>, Error> {
+    let who = event
+        .query_string_parameters_ref()
+        .and_then(|params| params.first("name"))
+        .unwrap_or("world");
+    info!(who, "query accepted");
+    let message = format!(
+        "Hello {who}, this is an Netlify serverless request"
+    );
+    let api_response = ApiResponse { data: message };
+    let body_text = serde_json::to_string(&api_response)?;
+    let resp = Response::builder()
+        .status(200)
+        .header(CONTENT_TYPE, "application/json")
+        .body(Body::Text(body_text))?;
+    Ok(resp)
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    SimpleLogger::new().with_level(LevelFilter::Info).init().unwrap();
-
-    let func = handler_fn(my_handler);
-    lambda_runtime::run(func).await?;
-    Ok(())
-}
-
-pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> Result<dyn Any, Error> {
-    let path = event.path.unwrap();
-    let cat_data = create_cat_data();
-
-    let resp: dyn Any = HttpServer::new(move || App::new().service(create_cat_scope(&cat_data))).bind(path) as dyn Any;
-
-    Ok(resp);
+    tracing_subscriber::fmt::init();
+    debug!("cold boot");
+    run(service_fn(function_handler)).await
 }
