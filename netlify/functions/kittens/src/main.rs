@@ -1,6 +1,6 @@
 use aws_lambda_events::encodings::Body;
 use aws_lambda_events::event::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
-use http::HeaderMap;
+use http::header::HeaderMap;
 use lambda_runtime::{Context, Error, handler_fn};
 use serde::Serialize;
 use tracing::{debug, info, instrument};
@@ -22,8 +22,7 @@ async fn main() -> Result<(), Error> {
 
 #[instrument]
 pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> Result<ApiGatewayProxyResponse, Error> {
-    let query_string_params = event.query_string_parameters.unwrap_or_default();
-    let who = query_string_params.get("name").unwrap_or(&String::from(""));
+    let who = event.query_string_parameters.get_key_value("name");
     info!(who, "query accepted");
 
     let message = format!(
