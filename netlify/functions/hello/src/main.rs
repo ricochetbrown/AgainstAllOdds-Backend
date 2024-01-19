@@ -15,13 +15,15 @@ async fn main() -> Result<(), Error> {
 }
 
 pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> Result<ApiGatewayProxyResponse, Error> {
-    let path = event.path.unwrap();
+    let who = event.query_string_parameters.get("name")
+        .and_then(|params| params.first(&mut "name"))
+        .unwrap_or("world");
 
     let resp = ApiGatewayProxyResponse {
         status_code: 200,
         headers: HeaderMap::new(),
         multi_value_headers: HeaderMap::new(),
-        body: Some(Body::Text(format!("Hello from '{}'", path))),
+        body: Some(Body::Text(format!("Hello from '{who}'"))),
         is_base64_encoded: Some(false),
     };
 
