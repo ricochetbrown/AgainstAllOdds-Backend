@@ -21,7 +21,7 @@ pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> 
         status_code: 200,
         headers: HeaderMap::new(),
         multi_value_headers: HeaderMap::new(),
-        body: Some(Body::Text(format!("Hello from '{who}'"))),
+        body: Some(Body::Text(format!("Hello from '{:?}'", who))),
         is_base64_encoded: Some(false),
     };
 
