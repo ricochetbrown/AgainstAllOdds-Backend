@@ -1,6 +1,5 @@
 use aws_lambda_events::encodings::Body;
 use aws_lambda_events::event::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
-use http::header::CONTENT_TYPE;
 use http::HeaderMap;
 use lambda_runtime::{Context, Error, handler_fn};
 use serde::Serialize;
@@ -23,10 +22,9 @@ async fn main() -> Result<(), Error> {
 
 #[instrument]
 pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> Result<ApiGatewayProxyResponse, Error> {
-    let who = event
-        .query_string_parameters.get("name");
+    let query_string_params = event.query_string_parameters.unwrap_or_default();
+    let who = query_string_params.get("name").unwrap_or(&String::from(""));
     info!(who, "query accepted");
-
 
     let message = format!(
         "Hello {who}, this is an Netlify serverless request"
