@@ -24,10 +24,11 @@ async fn main() -> Result<(), Error> {
 #[instrument]
 pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> Result<ApiGatewayProxyResponse, Error> {
     let who = event
-        .query_string_parameters_ref()
+        .QueryStringParameters
         .and_then(|params| params.first(&mut "name"))
         .unwrap_or("world");
     info!(who, "query accepted");
+
 
     let message = format!(
         "Hello {who}, this is an Netlify serverless request"
