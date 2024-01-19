@@ -15,9 +15,7 @@ async fn main() -> Result<(), Error> {
 }
 
 pub(crate) async fn my_handler(event: ApiGatewayProxyRequest, _ctx: Context) -> Result<ApiGatewayProxyResponse, Error> {
-    let who = event.query_string_parameters.get("name")
-        .and_then(|params| params.first(&mut "name"))
-        .unwrap_or("world");
+    let who = event.query_string_parameters.get("name");
 
     let resp = ApiGatewayProxyResponse {
         status_code: 200,
